@@ -55,11 +55,6 @@ init([]) ->
     SupFlags = #{strategy => one_for_one, intensity => 1, period => 5},
 
     ChildSpecs = [
-        #{id => lge_cmdline,
-          start => {lge_cmdline, start_link, []},
-          shutdown => brutal_kill,
-          modules => [lge_cmdline]}
-          ,
         #{id => lge_log,
           start => {lge_log, start_link, []},
           shutdown => brutal_kill,
