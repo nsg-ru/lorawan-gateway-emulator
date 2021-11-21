@@ -56,9 +56,9 @@ start_link() ->
 %% @end
 %%--------------------------------------------------------------------
 init([]) ->
-    Timer = erlang:send_after(?INTERVAl, self(), keepalive),
+    % Timer = erlang:send_after(?INTERVAl, self(), keepalive),
     State = #{
-        timer => Timer,
+        % timer => Timer,
         mac => lge_util:get_mac(),
         token => lge_util:rand16()
     },
@@ -107,6 +107,9 @@ handle_cast({resp, <<_:8, _Token:16, 3:8, Msg/binary>>}, State) ->
     Dwnb = maps:get(dwnb, State, 0),
     erlang:send_after(2500, self(), stat),
     {noreply, State#{dwnb => Dwnb + 1}};
+handle_cast(push, OldState) ->
+    State = do_push(OldState),
+    {noreply, State};
 handle_cast(_Msg, State) ->
     {noreply, State}.
 
@@ -236,7 +239,7 @@ do_stat(State) ->
 do_push(State) ->
     Mac = lge_util:get_mac(),
     Token = lge_util:rand16(),
-    Fcnt = maps:get(fcnt, State, 0),
+    Fcnt = maps:get(fcnt, State, 1),
     Json = get_json(Fcnt),
     Msg = << 2, Token:16 , 0, Mac/binary, Json/binary >>,
     Rxfw = maps:get(rxfw, State, 0) + 1,
